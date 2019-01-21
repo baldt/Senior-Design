@@ -1,0 +1,20 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial ble(0, 1); // RX, TX
+
+void setup() {
+  // Open serial port
+  // Serial.begin(9600);
+  // begin bluetooth serial port communication
+  ble.begin(9600);
+}
+
+// Now for the loop
+
+void loop() {
+  //Serial.println("Sending Bluetooth Message...");
+  ble.write("1");
+  delay(1000);
+  ble.write("0");
+  delay(1000);
+}
