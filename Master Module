@@ -1,0 +1,38 @@
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(2,3);
+char c =' ';
+byte LEDpin =7;
+byte LEDout = 12;
+void setup()
+{
+mySerial.begin(9600);   
+pinMode(7, OUTPUT);
+Serial.begin(9600);   
+  digitalWrite(7, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(100); 
+  digitalWrite(LEDout, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(100);                       // wait for a second
+  digitalWrite(7, LOW);    // turn the LED off by making the voltage LOW
+  delay(100); 
+  digitalWrite(LEDout, LOW);    // turn the LED off by making the voltage LOW
+delay(100);
+}
+void loop()
+{
+if (Serial.available()>0)
+mySerial.write(Serial.read());
+//if (mySerial.available()>0)
+  //Serial.write(mySerial.read());
+if (mySerial.available())
+    {
+        c = mySerial.read();
+        
+        // 49 is the ascii code for "1"
+        // 48 is the ascii code for "0"
+        if (c==49)   { digitalWrite(LEDpin,HIGH);   }
+        if (c==48)   { digitalWrite(LEDpin,LOW);    }
+        if (c==76)   { digitalWrite(LEDout,HIGH);   }
+        if (c==67)   { digitalWrite(LEDout,LOW);   }
+        Serial.println(c);
+    }
+}
