@@ -1,0 +1,31 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial ble(0, 1); // RX, TX
+const int sensor = 2;
+int state; // 0 close - 1 open switch
+
+void setup() {
+  ble.begin(9600);
+  pinMode(sensor, INPUT_PULLUP);
+}
+// Now for the loop
+
+void loop() {
+  state = digitalRead(sensor);
+  if (Serial.available()>0){
+    mySerial.write(Serial.read());
+  }
+  if (mySerial.available()){
+    c = mySerial.read();
+    if (state == LOW){
+      ble.write("1");
+      delay(1000);
+    }
+    else{
+      ble.write("0");
+      delay(1000);
+    }
+    delay(200);
+  }
+  
+}
