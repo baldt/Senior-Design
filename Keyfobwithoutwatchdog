@@ -1,0 +1,81 @@
+#include <SoftwareSerial.h>
+
+#define BEATTIME 100 //Length of the generated tone (msec)
+#define SPEAKER 6 //Pin number of the speaker
+
+SoftwareSerial mySerial(2,3);// RX, TX
+int count = 0;
+char c =' ';
+char d =' ';
+int buckle = 0;
+int test = 5;
+const int buttonPin = 7;
+const int ledPin =  13; 
+
+void setup(){
+  // initialize the pushbutton pin as an input:
+  mySerial.begin(9600);
+  Serial.begin(9600);
+  pinMode(buttonPin, INPUT);
+  pinMode(SPEAKER,OUTPUT);
+}
+
+void loop(){
+      if (Serial.available()>0)
+        mySerial.write(Serial.read());
+      if (mySerial.available()>0)
+        Serial.write(mySerial.read());
+      if (mySerial.available()){
+        c = mySerial.read();
+        delay(1000);
+        while (c == 'N' && buckle == 0){
+            d = mySerial.read();
+            if (d == '1'){
+              test = 0172;
+              Serial.write(test); 
+              buckle = 1;
+              c = '!';
+            }
+            //count set to reduce the time to wake up the attiny
+            else if (d == '0'){ 
+              test = 0112;  
+              Serial.write(test);
+              buckle = 0;
+              c = '$';
+              //count reset to a lower time  
+            }
+        }
+        while (c == 'N' && buckle == 1){
+          //reset count to lower time
+          d = mySerial.read();
+          if (d == 'P'){
+            test = 0172;  
+            Serial.write(test);
+            c = '?';
+          } 
+            //count set to reduce the time to wake up the attiny
+            else if (d == '0'){ 
+              test = 0112;  
+              Serial.write(test);
+              buckle = 0;
+              //count reset to a lower time  
+            }
+        }
+        while (buckle == 1 && c == 'V'){
+        //else if (buckle == 1 && c != 65 && c != 84 && c != 43 && c != 67 && c != 79 && c != 78 && c != 69){
+          /*while (digitalRead(buttonPin) == LOW){
+            tone(SPEAKER,294,BEATTIME) ; // Re
+            delay(BEATTIME) ;
+            tone(SPEAKER,330,BEATTIME) ; // Mi
+            delay(BEATTIME) ;    
+          }*/
+            test = 2212;  
+            Serial.write(test);
+            d = mySerial.read();
+            if (d == 'P'){
+            c = '!';
+          }
+        }
+      }
+      Serial.write(c);
+    }
