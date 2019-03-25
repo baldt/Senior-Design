@@ -8,7 +8,9 @@ int count = 0;
 char c =' ';
 char d =' ';
 int buckle = 0;
-int test = 5;
+int count = 0;
+int buttoncount = 0;
+int sleep = 0;
 const int buttonPin = 7;
 const int ledPin =  13; 
 
@@ -21,61 +23,62 @@ void setup(){
 }
 
 void loop(){
-      if (Serial.available()>0)
-        mySerial.write(Serial.read());
-      if (mySerial.available()>0)
-        Serial.write(mySerial.read());
-      if (mySerial.available()){
-        c = mySerial.read();
-        delay(1000);
-        while (c == 'N' && buckle == 0){
-            d = mySerial.read();
-            if (d == '1'){
-              test = 0172;
-              Serial.write(test); 
-              buckle = 1;
-              c = '!';
-            }
-            //count set to reduce the time to wake up the attiny
-            else if (d == '0'){ 
-              test = 0112;  
-              Serial.write(test);
-              buckle = 0;
-              c = '$';
-              //count reset to a lower time  
-            }
-        }
-        while (c == 'N' && buckle == 1){
-          //reset count to lower time
-          d = mySerial.read();
-          if (d == 'P'){
-            test = 0172;  
-            Serial.write(test);
-            c = '?';
-          } 
-            //count set to reduce the time to wake up the attiny
-            else if (d == '0'){ 
-              test = 0112;  
-              Serial.write(test);
-              buckle = 0;
-              //count reset to a lower time  
-            }
-        }
-        while (buckle == 1 && c == 'V'){
-        //else if (buckle == 1 && c != 65 && c != 84 && c != 43 && c != 67 && c != 79 && c != 78 && c != 69){
-          /*while (digitalRead(buttonPin) == LOW){
-            tone(SPEAKER,294,BEATTIME) ; // Re
-            delay(BEATTIME) ;
-            tone(SPEAKER,330,BEATTIME) ; // Mi
-            delay(BEATTIME) ;    
-          }*/
-            test = 2212;  
-            Serial.write(test);
-            d = mySerial.read();
-            if (d == 'P'){
-            c = '!';
-          }
-        }
-      }
-      Serial.write(c);
-    }
+	if (mySerial.available()>0)
+	Serial.write(mySerial.read());
+	if (mySerial.available()){
+		c = mySerial.read();
+		delay(1000);
+		while (c == 'N' && buckle == 0){ //Buckle not engaged
+			d = mySerial.read();
+			sleep = 0;
+			count = 0;
+			if (d == '1'){//set buckle to enaged and device sleep
+			  buckle = 1;
+			}
+			else if (d == '0'){ //buckle stays disengaged and device sleep
+			  buckle = 0;
+			}
+		}
+		while (c == 'N' && buckle == 1){
+			sleep = 0;
+			count = 0;
+			d = mySerial.read();
+			if (d == '1'){ // buckle stays engaged and device sleep
+				buckle = 1;
+			} 
+			else if (d == '0'){ //buckle is set to disengaged and device sleep
+				buckle = 0;
+			}
+		}
+		while (buckle == 1 && count <= 50 || sleep = 1){//Alarm engaged
+			while (digitalRead(buttonPin) == LOW){
+				tone(SPEAKER,294,BEATTIME) ; // Re
+				delay(BEATTIME) ;
+				tone(SPEAKER,330,BEATTIME) ; // Mi
+				delay(BEATTIME) ;    
+			}
+			
+			while (digitalRead(buttonPin) == HIGH){//manual reset device
+				buttoncount = buttoncount + 1;
+				delay(1000)
+				if (buttoncount >= 4){
+					tone(SPEAKER,540,BEATTIME) ; // Mi
+					delay(BEATTIME) ;    
+					buckle = 0;
+					buttoncount = 0;
+					count = 0;
+					sleep = 0;
+				}
+			}
+			
+			if (buttoncount > 0 && buttoncount < 4){//alarm sleep
+				sleep = 1;
+				delay (5000);
+			}
+
+			
+		}
+		count = count + 1;
+	}
+}
+
